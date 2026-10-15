@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Para ti ❤️</title>
+<style>
+body {
+  margin: 0;
+  background: black;
+  overflow: hidden;
+}
+canvas {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+.mensaje {
+  position: fixed;
+  bottom: 10%;
+  width: 100%;
+  text-align: center;
+  color: #ff334f;
+  font: 20px Arial;
+}
+</style>
+</head>
+<body>
+<canvas id="corazon"></canvas>
+<div class="mensaje">PARA TI ❤️</div>
+<script>
+const canvas = document.getElementById("corazon");
+const ctx = canvas.getContext("2d");
+let puntos = [];
+let progreso = 0;
+let anterior = 0;
+let w, h, escala;
+
+function ajustar() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  w = innerWidth;
+  h = innerHeight;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  escala = Math.min(w / 36, h / 32) * 0.82;
+  puntos = [];
+
+  for (let i = 0; i <= 1000; i++) {
+    const k = i / 1000 * Math.PI * 2;
+    const x = 15 * Math.sin(k) ** 3;
+    const y = 12 * Math.cos(k)
+      - 5 * Math.cos(2*k)
+      - 2 * Math.cos(3*k)
+      - Math.cos(4*k);
+
+    puntos.push([w/2 + x*escala, h/2 - y*escala]);
+  }
+}
+
+function animar(t) {
+  const dt = anterior ? Math.min((t-anterior)/1000, 0.05) : 0;
+  anterior = t;
+  ctx.clearRect(0, 0, w, h);
+  progreso += dt / 4;
+  if (progreso > 1.3) progreso = 0;
+
+  const avance = Math.min(1, progreso / 0.8);
+  const limite = Math.max(2, Math.floor(avance * (puntos.length-1)));
+
+  ctx.beginPath();
+  ctx.moveTo(...puntos[0]);
+  for (let i = 1; i < limite; i++) {
+    ctx.lineTo(...puntos[i]);
+  }
+
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.shadowColor = "red";
+  ctx.shadowBlur = 25;
+  ctx.strokeStyle = "#ff0033";
+  ctx.lineWidth = 5;
+  ctx.stroke();
+
+  ctx.shadowBlur = 5;
+  ctx.strokeStyle = "#ff8a9b";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  requestAnimationFrame(animar);
+}
+
+window.addEventListener("resize", ajustar);
+ajustar();
+requestAnimationFrame(animar);
+</script>
+</body>
+</html>
+
