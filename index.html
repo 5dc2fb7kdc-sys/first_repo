@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flores para Adriana 🌹</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow: hidden;
+  background: radial-gradient(ellipse at center, #31052d, #08000e 75%);
+  color: white;
+  font-family: Georgia, serif;
+}
+
+.mensaje {
+  position: absolute;
+  top: 6%;
+  width: 100%;
+  padding: 0 12px;
+  text-align: center;
+  z-index: 3;
+}
+
+h1 {
+  color: #ff78ce;
+  font-size: clamp(34px, 8vw, 58px);
+  text-shadow: 0 0 12px #ff168c, 0 0 32px #ff168c;
+  animation: brillo 2s infinite alternate;
+}
+
+p {
+  color: #ffe0f4;
+  font-size: clamp(15px, 4vw, 21px);
+  line-height: 1.5;
+}
+
+button {
+  padding: 12px 20px;
+  border: 1px solid #ffb1e3;
+  border-radius: 30px;
+  color: white;
+  background: #c91b88;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 0 18px #ff168c;
+}
+
+#jardin, #efectos {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#jardin { z-index: 1; }
+#efectos { z-index: 2; pointer-events: none; }
+
+@keyframes brillo {
+  from { text-shadow: 0 0 8px #ff168c; }
+  to { text-shadow: 0 0 30px #ff168c, 0 0 45px #ff69b4; }
+}
+
+.corazon {
+  position: fixed;
+  bottom: -40px;
+  z-index: 2;
+  pointer-events: none;
+  animation: subir 5s linear forwards;
+}
+
+@keyframes subir {
+  to {
+    transform: translateY(-115vh) rotate(30deg);
+    opacity: 0;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="mensaje">
+  <h1>Para Adriana 🌹</h1>
+  <p>Estas flores son para ti ❤️<br>
+  Que nunca te falten motivos para sonreír ✨</p>
+  <button onclick="lluviaDeAmor()">Enviar corazones 💖</button>
+</div>
+
+<canvas id="jardin"></canvas>
+<div id="efectos"></div>
+
+<script>
+const canvas = document.getElementById("jardin");
+const ctx = canvas.getContext("2d");
+const efectos = document.getElementById("efectos");
+
+let w, h, tiempo = 0;
+
+const flores = [
+  {x:.12,y:.57,r:20,c:"#ff4da6"},
+  {x:.30,y:.67,r:15,c:"#d66bff"},
+  {x:.50,y:.55,r:25,c:"#ff258e"},
+  {x:.70,y:.66,r:18,c:"#ff80bd"},
+  {x:.88,y:.56,r:22,c:"#db54ff"},
+  {x:.22,y:.82,r:17,c:"#ff6cba"},
+  {x:.77,y:.83,r:20,c:"#ff348d"},
+  {x:.42,y:.78,r:15,c:"#c45cff"},
+  {x:.61,y:.84,r:16,c:"#ff9bd5"}
+];
+
+function ajustar() {
+  const dpr = window.devicePixelRatio || 1;
+  w = window.innerWidth;
+  h = window.innerHeight;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function dibujarFlor(f, n) {
+  const x = f.x * w;
+  const y = f.y * h;
+  const r = Math.min(f.r, w * .055);
+  const balanceo = Math.sin(tiempo * .025 + n) * .12;
+
+  // Tallo
+  ctx.beginPath();
+  ctx.moveTo(x, h + 5);
+  ctx.quadraticCurveTo(x - 12, (h + y) / 2, x, y);
+  ctx.strokeStyle = "#35d66c";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Hojas
+  ctx.fillStyle = "#26b85a";
+  ctx.beginPath();
+  ctx.ellipse(x - 10, y + 40, 7, 15, -.8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(x + 10, y + 65, 7, 15, .8, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Pétalos
+  for (let i = 0; i < 8; i++) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(i * Math.PI / 4 + balanceo);
+    ctx.beginPath();
+    ctx.ellipse(0, -r * .75, r * .45, r, 0, 0, Math.PI * 2);
+    ctx.fillStyle = f.c;
+    ctx.shadowColor = f.c;
+    ctx.shadowBlur = 16;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Centro de la flor
+  ctx.beginPath();
+  ctx.arc(x, y, r * .28, 0, Math.PI * 2);
+  ctx.fillStyle = "#ffe66d";
+  ctx.shadowColor = "#ffcc00";
+  ctx.shadowBlur = 15;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+}
+
+function animar() {
+  tiempo++;
+  ctx.clearRect(0, 0, w, h);
+
+  // Estrellas que brillan
+  for (let i = 0; i < 65; i++) {
+    const x = (i * 137.5) % w;
+    const y = (i * 83.7) % h;
+    ctx.globalAlpha = .3 + Math.abs(Math.sin(tiempo * .035 + i)) * .7;
+    ctx.fillStyle = "#ffd9f3";
+    ctx.beginPath();
+    ctx.arc(x, y, 1.4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.globalAlpha = 1;
+  flores.forEach((f, i) => dibujarFlor(f, i));
+
+  requestAnimationFrame(animar);
+}
+
+function crearCorazon() {
+  const corazon = document.createElement("span");
+  corazon.className = "corazon";
+  corazon.textContent = ["💖", "💕", "❤️", "💗", "✨"][Math.floor(Math.random() * 5)];
+  corazon.style.left = Math.random() * 95 + "vw";
+  corazon.style.fontSize = (18 + Math.random() * 22) + "px";
+  corazon.style.animationDuration = (4 + Math.random() * 3) + "s";
+  efectos.appendChild(corazon);
+  setTimeout(() => corazon.remove(), 7500);
+}
+
+function lluviaDeAmor() {
+  for (let i = 0; i < 25; i++) {
+    setTimeout(crearCorazon, i * 100);
+  }
+}
+
+// Corazones suaves que aparecen solos
+setInterval(crearCorazon, 650);
+
+window.addEventListener("resize", ajustar);
+ajustar();
+animar();
+</script>
+</body>
+</html>
